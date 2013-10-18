@@ -277,10 +277,31 @@ void ofxiOSVideoWriter::end() {
         fboBGRA.unbind();
     }
     
+	static double t = 0;
+	
     //---------------------------------------------- add sound.
     for(int i=0; i<videos.size(); i++) {
         ofxiOSVideoPlayer & video = *videos[i];
         AVFoundationVideoPlayer * avVideo = (AVFoundationVideoPlayer *)video.getAVFoundationVideoPlayer();
-        [videoWriter addAudio:[avVideo getAudioSampleBuffer]];
+        
+		CMSampleBufferRef bufferRef = [avVideo getAudioSampleBuffer];
+		CMFormatDescriptionRef format = CMSampleBufferGetFormatDescription(bufferRef);
+		const AudioStreamBasicDescription * asbd = CMAudioFormatDescriptionGetStreamBasicDescription(format);
+		AudioBufferList abl;
+		CMBlockBufferRef blockBufferRef;
+		CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(bufferRef, NULL, &abl, sizeof(abl), NULL, NULL, 0, &blockBufferRef);
+		
+		for(int j = 0; j < abl.mNumberBuffers; j++) {
+			SInt16 * buffer = (SInt16 *)abl.mBuffers[j].mData;
+			for(int k = 0; k < abl.mBuffers[j].mDataByteSize / sizeof(SInt16); k++) {
+				SInt16 v = buffer[k];
+				buffer[k] = v * fabsf(sin(t));
+				t += 0.0001;
+			}
+		}
+		
+		[videoWriter addAudio:bufferRef];
+		
+		CFRelease(blockBufferRef);
     }
 }
