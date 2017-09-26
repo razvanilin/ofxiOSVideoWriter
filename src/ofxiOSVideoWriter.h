@@ -16,8 +16,8 @@ public:
     ofxiOSVideoWriter();
     ~ofxiOSVideoWriter();
     
-    void setup(int videoWidth, int videoHeight);
-    void setup(int videoWidth, int videoHeight, string filePath);
+    void setup(int videoWidth, int videoHeight, string videoName);
+    void setupWithPath(int videoWidth, int videoHeight, string filePath);
     void setFPS(float fps);
     float getFPS();
     
@@ -30,12 +30,15 @@ public:
     void draw(float x=0, float y=0);
     void draw(float x, float y, float width, float height);
     
-    void startRecording();
+    void startRecording(string rotation);
     void cancelRecording();
     void finishRecording();
     bool isRecording();
     int getRecordFrameNum();
-    
+  
+    string getVideoName();
+    string getVideoPath();
+  
     void initTextureCache();
     void killTextureCache();
     
@@ -55,4 +58,8 @@ public:
     float recordFPS;
     bool bLockToFPS;
     bool bUseTextureCache;
+
+private:
+  string _videoName;
+  string _videoPath;
 };

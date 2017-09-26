@@ -82,7 +82,7 @@
         bUseTextureCache = NO;
         bEnableTextureCache = NO;
         bTextureCacheSupported = NO;
-        bMicAudio = YES;
+        bMicAudio = NO;
         bFirstAudio = NO;
         expectsMediaDataInRealTime = YES;
     }
@@ -104,11 +104,10 @@
     }
 #endif
     
-    [super dealloc];
 }
 
 //---------------------------------------------------------------------------
-- (void)startRecording {
+- (void)startRecording:(NSString *) rotation {
     if(bWriting == YES) {
         return;
     }
@@ -142,17 +141,16 @@
         NSError * micError = nil;
         AVCaptureDevice * captureDevice = [AVCaptureDevice defaultDeviceWithMediaType: AVMediaTypeAudio];
         self.captureInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&micError];
-        self.captureOutput = [[[AVCaptureAudioDataOutput alloc] init] autorelease];
+        self.captureOutput = [[AVCaptureAudioDataOutput alloc] init];
         
-        self.captureSession = [[[AVCaptureSession alloc] init] autorelease];
+        self.captureSession = [[AVCaptureSession alloc] init];
         self.captureSession.sessionPreset = AVCaptureSessionPresetLow;
         [self.captureSession addInput:self.captureInput];
         [self.captureSession addOutput:self.captureOutput];
 
         dispatch_queue_t queue = dispatch_queue_create("MyQueue", NULL);
             [self.captureOutput setSampleBufferDelegate:self queue:queue];
-        dispatch_release(queue);
-        
+      
         [self.captureSession startRunning];
     }
 
@@ -167,6 +165,14 @@
     // passing nil for outputSettings instructs the input to pass through appended samples, doing no processing before they are written
     self.assetWriterVideoInput = [AVAssetWriterInput assetWriterInputWithMediaType:AVMediaTypeVideo
                                                                     outputSettings:videoSettings];
+    if ([rotation  isEqual: @"right"]) {
+      [self.assetWriterVideoInput setTransform:CGAffineTransformScale(CGAffineTransformMakeRotation(M_PI/2), -1.0, -1.0)];
+    }
+  
+    if ([rotation isEqual: @"left"]) {
+      [self.assetWriterVideoInput setTransform:CGAffineTransformScale(CGAffineTransformMakeRotation(-M_PI/2), -1.0, -1.0)];
+    }
+  
     self.assetWriterVideoInput.expectsMediaDataInRealTime = expectsMediaDataInRealTime;
     
     // You need to use BGRA for the video in order to get realtime encoding.
@@ -630,8 +636,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 									}
                                     
 									self.outputURL = nil;
-                                    [library release];
-                                    
+                  
                                     if([self.delegate respondsToSelector:@selector(videoWriterSavedToCameraRoll)]) {
                                         [self.delegate videoWriterSavedToCameraRoll];
                                     }

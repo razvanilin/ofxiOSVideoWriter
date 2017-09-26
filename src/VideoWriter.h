@@ -16,11 +16,12 @@
 @end
 
 @interface VideoWriter : NSObject {
-    id<VideoWriterDelegate> delegate;
+    id<VideoWriterDelegate> __unsafe_unretained delegate;
     dispatch_queue_t videoWriterQueue;
 }
 
-@property(nonatomic, assign) id delegate;
+@property(unsafe_unretained) id <VideoWriterDelegate> delegate;
+
 @property(nonatomic, assign) CGSize videoSize;
 @property(nonatomic, retain) EAGLContext * context;
 @property(nonatomic, retain) AVAssetWriter * assetWriter;
@@ -39,7 +40,7 @@
 - (id)initWithPath:(NSString *)path andVideoSize:(CGSize)size;
 - (id)initWithURL:(NSURL *)fileURL andVideoSize:(CGSize)size;
 
-- (void)startRecording;
+- (void)startRecording:(NSString *) rotation;
 - (void)cancelRecording;
 - (void)finishRecording;
 - (BOOL)isWriting;

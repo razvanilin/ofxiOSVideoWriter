@@ -54,24 +54,27 @@ ofxiOSVideoWriter::ofxiOSVideoWriter() {
 
 ofxiOSVideoWriter::~ofxiOSVideoWriter() {
     if((videoWriter != nil)) {
-        [videoWriter release];
         videoWriter = nil;
     }
 }
 
 //------------------------------------------------------------------------- setup.
-void ofxiOSVideoWriter::setup(int videoWidth, int videoHeight) {
+void ofxiOSVideoWriter::setup(int videoWidth, int videoHeight, string videoName) {
+    _videoName = videoName;
+  
     NSString * docPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-    NSString * docVideoPath = [docPath stringByAppendingPathComponent:@"/video.mov"];
-
-    setup(videoWidth, videoHeight, [docVideoPath UTF8String]);
+    NSString * docVideoPath = [docPath stringByAppendingPathComponent:@(videoName.c_str())];
+  
+    setupWithPath(videoWidth, videoHeight, [docVideoPath UTF8String]);
 }
 
-void ofxiOSVideoWriter::setup(int videoWidth, int videoHeight, string filePath) {
+void ofxiOSVideoWriter::setupWithPath(int videoWidth, int videoHeight, string filePath) {
     if((videoWriter != nil)) {
         return;
     }
-    
+  
+    _videoPath = filePath;
+  
     CGSize videoSize = CGSizeMake(videoWidth, videoHeight);
     videoWriter = [[VideoWriter alloc] initWithPath:[NSString stringWithUTF8String:filePath.c_str()] andVideoSize:videoSize];
     videoWriter.context = [ofxiOSEAGLView getInstance].context; // TODO - this should probably be passed in with init.
@@ -127,7 +130,7 @@ void ofxiOSVideoWriter::draw(float x, float y, float width, float height) {
 }
 
 //------------------------------------------------------------------------- record api.
-void ofxiOSVideoWriter::startRecording() {
+void ofxiOSVideoWriter::startRecording(string rotation) {
     if((videoWriter == nil) ||
        [videoWriter isWriting] == YES) {
         return;
@@ -139,7 +142,7 @@ void ofxiOSVideoWriter::startRecording() {
     BOOL bRealTime = (bLockToFPS == false);
     bRealTime = YES; // for some reason, if bRealTime is false, it screws things up.
     [videoWriter setExpectsMediaDataInRealTime:bRealTime];
-    [videoWriter startRecording];
+    [videoWriter startRecording:[NSString stringWithUTF8String:rotation.c_str()]];
 
     if([videoWriter isTextureCached] == YES) {
         initTextureCache();
@@ -178,6 +181,14 @@ bool ofxiOSVideoWriter::isRecording() {
 
 int ofxiOSVideoWriter::getRecordFrameNum() {
     return recordFrameNum;
+}
+
+string ofxiOSVideoWriter::getVideoName() {
+  return _videoName;
+}
+
+string ofxiOSVideoWriter::getVideoPath() {
+  return _videoPath;
 }
 
 //------------------------------------------------------------------------- texture cache
@@ -298,7 +309,7 @@ void ofxiOSVideoWriter::end() {
     //---------------------------------------------- add sound.
     for(int i=0; i<videos.size(); i++) {
         ofxiOSVideoPlayer & video = *videos[i];
-        AVFoundationVideoPlayer * avVideo = (AVFoundationVideoPlayer *)video.getAVFoundationVideoPlayer();
+        AVFoundationVideoPlayer * avVideo = (__bridge AVFoundationVideoPlayer *)video.getAVFoundationVideoPlayer();
         BOOL bAudioFrameAdded = [videoWriter addAudio:[avVideo getAudioSampleBuffer]];
         if(bAudioFrameAdded == YES) {
             //
