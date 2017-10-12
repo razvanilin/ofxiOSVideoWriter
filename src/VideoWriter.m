@@ -155,8 +155,13 @@
     }
 
     //--------------------------------------------------------------------------- adding video input.
+    NSDictionary *codecSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [NSNumber numberWithInt:800000], AVVideoAverageBitRateKey,
+                                 nil];
+  
     NSDictionary * videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:
                                     AVVideoCodecH264, AVVideoCodecKey,
+                                    codecSettings, AVVideoCompressionPropertiesKey,
                                     [NSNumber numberWithInt:self.videoSize.width], AVVideoWidthKey,
                                     [NSNumber numberWithInt:self.videoSize.height], AVVideoHeightKey,
                                     nil];
