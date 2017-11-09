@@ -31,6 +31,7 @@
 @property(nonatomic, retain) NSURL * outputURL;
 @property(nonatomic, assign) BOOL enableTextureCache;
 @property(nonatomic, assign) BOOL expectsMediaDataInRealTime;
+@property(nonatomic, assign) int bitrate;
 
 @property(nonatomic, retain) AVCaptureDeviceInput * captureInput;
 @property(nonatomic, retain) AVCaptureAudioDataOutput * captureOutput;

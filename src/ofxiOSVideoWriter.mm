@@ -59,16 +59,16 @@ ofxiOSVideoWriter::~ofxiOSVideoWriter() {
 }
 
 //------------------------------------------------------------------------- setup.
-void ofxiOSVideoWriter::setup(int videoWidth, int videoHeight, string videoName) {
+void ofxiOSVideoWriter::setup(int videoWidth, int videoHeight, string videoName, int bitrate) {
     _videoName = videoName;
   
     NSString * docPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     NSString * docVideoPath = [docPath stringByAppendingPathComponent:@(videoName.c_str())];
   
-    setupWithPath(videoWidth, videoHeight, [docVideoPath UTF8String]);
+    setupWithPath(videoWidth, videoHeight, [docVideoPath UTF8String], bitrate);
 }
 
-void ofxiOSVideoWriter::setupWithPath(int videoWidth, int videoHeight, string filePath) {
+void ofxiOSVideoWriter::setupWithPath(int videoWidth, int videoHeight, string filePath, int bitrate) {
     if((videoWriter != nil)) {
         return;
     }
@@ -79,6 +79,7 @@ void ofxiOSVideoWriter::setupWithPath(int videoWidth, int videoHeight, string fi
     videoWriter = [[VideoWriter alloc] initWithPath:[NSString stringWithUTF8String:filePath.c_str()] andVideoSize:videoSize];
     videoWriter.context = [ofxiOSEAGLView getInstance].context; // TODO - this should probably be passed in with init.
     videoWriter.enableTextureCache = YES; // TODO - this should be turned on by default when it is working.
+    [videoWriter setBitrate:bitrate];
     
     shaderBGRA.setupShaderFromSource(GL_VERTEX_SHADER, swizzleVertexShader);
     shaderBGRA.setupShaderFromSource(GL_FRAGMENT_SHADER, swizzleFragmentShader);

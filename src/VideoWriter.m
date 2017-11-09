@@ -85,6 +85,8 @@
         bMicAudio = NO;
         bFirstAudio = NO;
         expectsMediaDataInRealTime = YES;
+      
+        self.bitrate = 960000;
     }
     return self;
 }
@@ -156,7 +158,7 @@
 
     //--------------------------------------------------------------------------- adding video input.
     NSDictionary *codecSettings = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [NSNumber numberWithInt:800000], AVVideoAverageBitRateKey,
+                                 [NSNumber numberWithInt:self.bitrate], AVVideoAverageBitRateKey,
                                  nil];
   
     NSDictionary * videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:

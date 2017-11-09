@@ -16,8 +16,8 @@ public:
     ofxiOSVideoWriter();
     ~ofxiOSVideoWriter();
     
-    void setup(int videoWidth, int videoHeight, string videoName);
-    void setupWithPath(int videoWidth, int videoHeight, string filePath);
+    void setup(int videoWidth, int videoHeight, string videoName, int bitrate);
+    void setupWithPath(int videoWidth, int videoHeight, string filePath, int bitrate);
     void setFPS(float fps);
     float getFPS();
     
